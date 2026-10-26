@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Clone - Estructuras</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+        :root {
+            --bg-base: #000000;
+            --bg-elevated: #121212;
+            --bg-highlight: #1a1a1a;
+            --bg-hover: #2a2a2a;
+            
+            /* Colores basados en tu logo */
+            --brand-gradient: linear-gradient(90deg, #00c6ff 0%, #8e2de2 100%);
+            --text-base: #ffffff;
+            --text-subdued: #a7a7a7;
+            --player-bg: #181818;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-base);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- BARRA LATERAL --- */
+        .sidebar {
+            width: 280px;
+            background-color: var(--bg-base);
+            padding: 24px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 12px 20px 12px;
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -1px;
+        }
+
+        .logo-container img {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+        }
+
+        .nav-menu {
+            background-color: var(--bg-elevated);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-subdued);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover { color: var(--text-base); }
+        .nav-item.active { color: var(--text-base); }
+
+        /* --- CONTENIDO PRINCIPAL --- */
+        .main-view {
+            flex: 1;
+            margin: 12px 12px 12px 0;
+            background: linear-gradient(180deg, #1f1f1f 0%, var(--bg-elevated) 100%);
+            border-radius: 8px;
+            overflow-y: auto;
+            padding: 30px 40px;
+            padding-bottom: 120px;
+        }
+
+        .main-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: var(--brand-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .main-header p {
+            color: var(--text-subdued);
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+
+        /* --- TARJETAS (GRID) --- */
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background-color: var(--bg-highlight);
+            padding: 16px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card:hover { background-color: var(--bg-hover); }
+        .card:hover .play-float { opacity: 1; transform: translateY(0); }
+
+        .card-img {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 6px;
+            background: var(--brand-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        .card h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card p {
+            font-size: 0.85rem;
+            color: var(--text-subdued);
+        }
+
+        .play-float {
+            position: absolute;
+            bottom: 80px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--brand-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.2rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 8px rgba(0,0,0,0.3);
+        }
+
+        /* --- PANEL DE RESULTADOS --- */
+        .result-panel {
+            background-color: var(--bg-elevated);
+            border-radius: 8px;
+            padding: 24px;
+            margin-top: 20px;
+        }
+        
+        .result-panel h3 { margin-bottom: 20px; font-size: 1.2rem; }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 6px;
+            transition: 0.2s;
+            background-color: var(--bg-highlight);
+            margin-bottom: 8px;
+            border-left: 4px solid #00c6ff;
+        }
+
+        .result-item:hover { background-color: var(--bg-hover); }
+        
+        .btn-play-small {
+            background: none; border: none; color: white; cursor: pointer; font-size: 1.2rem;
+        }
+        .btn-play-small:hover { color: #00c6ff; }
+
+        /* --- REPRODUCTOR INFERIOR --- */
+        .player-bar {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 90px;
+            background-color: var(--player-bg);
+            border-top: 1px solid #282828;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 100;
+        }
+
+        .song-info { display: flex; align-items: center; gap: 15px; width: 30%; }
+        .song-cover { 
+            width: 56px; height: 56px; 
+            background: var(--brand-gradient); 
+            border-radius: 6px; 
+            display: flex; justify-content: center; align-items: center; font-size: 1.5rem;
+        }
+        .song-text h4 { font-size: 0.9rem; color: white; margin-bottom: 4px; }
+        .song-text span { font-size: 0.75rem; color: var(--text-subdued); }
+
+        .player-controls { display: flex; align-items: center; gap: 24px; width: 40%; justify-content: center; }
+        .control-btn { background: none; border: none; color: var(--text-subdued); font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
+        .control-btn:hover { color: white; }
+        .control-btn.play { font-size: 2rem; color: white; }
+        .control-btn.play:hover { transform: scale(1.1); }
+
+        .volume-controls { width: 30%; display: flex; justify-content: flex-end; align-items: center; gap: 10px; color: var(--text-subdued); }
+        .volume-bar { width: 100px; height: 4px; background-color: #4d4d4d; border-radius: 2px; }
+        .volume-fill { width: 70%; height: 100%; background: var(--brand-gradient); border-radius: 2px; }
+
+        /* Animación de carga */
+        .spinner { animation: spin 1s linear infinite; display: inline-block; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="logo-container">
+            <img src="logo.png" alt="Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3659/3659899.png'">
+            <span>MusicStruct</span>
+        </div>
+        
+        <div class="nav-menu">
+            <a class="nav-item active">🏠 Inicio</a>
+            <a class="nav-item">🔍 Buscar</a>
+            <a class="nav-item">📚 Tu Biblioteca</a>
+        </div>
+        
+        <div class="nav-menu" style="margin-top: 10px; flex: 1;">
+            <h4 style="color: var(--text-subdued); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px;">Estructuras</h4>
+            <a class="nav-item" style="font-size: 0.9rem;">Arreglo Dinámico</a>
+            <a class="nav-item" style="font-size: 0.9rem;">Lista Enlazada</a>
+            <a class="nav-item" style="font-size: 0.9rem;">Árbol Binario</a>
+            <a class="nav-item" style="font-size: 0.9rem;">Grafos y Rutas</a>
+        </div>
+    </div>
+
+    <!-- VISTA PRINCIPAL -->
+    <div class="main-view">
+        <div class="main-header">
+            <h1>Buenas tardes</h1>
+            <p>Explora cómo funcionan las estructuras de datos detrás de una app de música.</p>
+        </div>
+
+        <div class="grid-cards">
+            <!-- Tarjeta 1 -->
+            <div class="card" onclick="probarAPI('/api/arreglo', 'arreglo')">
+                <div class="card-img">📦</div>
+                <h3>Arreglo Dinámico</h3>
+                <p>Catálogo que crece solo</p>
+                <div class="play-float">▶</div>
+            </div>
+            <!-- Tarjeta 2 -->
+            <div class="card" onclick="probarAPI('/api/lista-simple', 'lista')">
+                <div class="card-img">🔗</div>
+                <h3>Lista Simple</h3>
+                <p>Conteo recursivo de canciones</p>
+                <div class="play-float">▶</div>
+            </div>
+            <!-- Tarjeta 3 -->
+            <div class="card" onclick="probarAPI('/api/bst', 'bst')">
+                <div class="card-img">🌳</div>
+                <h3>Árbol BST</h3>
+                <p>Búsqueda rápida en catálogo</p>
+                <div class="play-float">▶</div>
+            </div>
+            <!-- Tarjeta 4 -->
+            <div class="card" onclick="probarAPI('/api/grafo', 'grafo')">
+                <div class="card-img">🕸️</div>
+                <h3>Grafo (Dijkstra)</h3>
+                <p>Recomendaciones de artistas</p>
+                <div class="play-float">▶</div>
+            </div>
+            <!-- Tarjeta 5 -->
+            <div class="card" onclick="probarAPI('/api/bd', 'bd')">
+                <div class="card-img">🗄️</div>
+                <h3>Base de Datos</h3>
+                <p>Conexión con PostgreSQL</p>
+                <div class="play-float">▶</div>
+            </div>
+        </div>
+
+        <!-- Panel de Resultados -->
+        <div class="result-panel" id="resultado">
+            <h3>Resultados de la API:</h3>
+            <p style="color: var(--text-subdued);">Haz clic en una tarjeta para ejecutar el código C# en la nube.</p>
+        </div>
+    </div>
+
+    <!-- REPRODUCTOR -->
+    <div class="player-bar">
+        <div class="song-info">
+            <div class="song-cover">🎵</div>
+            <div class="song-text">
+                <h4 id="current-title">Selecciona una canción</h4>
+                <span id="current-artist">Artista Desconocido</span>
+            </div>
+        </div>
+        <div class="player-controls">
+            <button class="control-btn">⏮️</button>
+            <button class="control-btn play" id="play-btn" onclick="togglePlay()">▶️</button>
+            <button class="control-btn">⏭️</button>
+        </div>
+        <div class="volume-controls">
+            🔊 <div class="volume-bar"><div class="volume-fill"></div></div>
+        </div>
+        <!-- Audio de prueba -->
+        <audio id="audio-player" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+    </div>
+
+    <script>
+        // --- Lógica del Reproductor ---
+        const audio = document.getElementById('audio-player');
+        const playBtn = document.getElementById('play-btn');
+        let isPlaying = false;
+
+        function togglePlay() {
+            if (isPlaying) {
+                audio.pause();
+                playBtn.innerText = '▶️';
+            } else {
+                audio.play();
+                playBtn.innerText = '⏸️';
+            }
+            isPlaying = !isPlaying;
+        }
+
+        function playSong(title, artist) {
+            document.getElementById('current-title').innerText = title;
+            document.getElementById('current-artist').innerText = artist;
+            audio.currentTime = 0;
+            audio.play();
+            playBtn.innerText = '⏸️';
+            isPlaying = true;
+        }
+
+        // --- Lógica de la API ---
+        async function probarAPI(ruta, tipo) {
+            const div = document.getElementById('resultado');
+            div.innerHTML = `<h3>Resultados de la API:</h3><p style="color: #00c6ff;"><span class="spinner">⏳</span> Cargando datos desde C#...</p>`;
+            
+            try {
+                const response = await fetch(ruta);
+                const data = await response.json();
+                
+                let html = `<h3>Resultados de la API:</h3>`;
+                
+                if (data.Mensaje) {
+                    html += `<p style="color: var(--text-subdued); margin-bottom: 20px;">${data.Mensaje}</p>`;
+                }
+
+                // Respuestas visuales según el botón
+                if (tipo === 'arreglo' && data.Canciones) {
+                    data.Canciones.forEach(c => {
+                        html += `<div class="result-item">
+                                    <div><strong>🎵 ${c}</strong> <span style="color: var(--text-subdued); font-size: 0.8rem;">(Queen)</span></div>
+                                    <button class="btn-play-small" onclick="playSong('${c}', 'Queen')">▶️</button>
+                                 </div>`;
+                    });
+                } else if (tipo === 'lista') {
+                    html += `<div class="result-item">Total de canciones contadas recursivamente: <strong style="font-size: 1.2rem; color: #8e2de2;">${data.TotalRecursivo}</strong></div>`;
+                } else if (tipo === 'bd') {
+                    html += `<div class="result-item" style="border-left-color: #8e2de2;">✅ <strong>${data.Mensaje}</strong></div>`;
+                } else {
+                    // Para BST y Grafo (Formateo bonito de JSON)
+                    html += `<div class="result-item">🌳 <strong>${data.Mensaje || 'Operación exitosa'}</strong></div>`;
+                }
+
+                div.innerHTML = html;
+
+            } catch (error) {
+                div.innerHTML = `<h3 style="color: #ff4d4d;">❌ Error de conexión</h3><p>${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
