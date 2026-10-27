@@ -1,4 +1,6 @@
 using SpotifyApp;
+using System.Net.Http.Json;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +18,7 @@ app.UseCors();
 app.UseDefaultFiles(); // Busca el index.html automáticamente
 app.UseStaticFiles();  // Habilita la carpeta wwwroot
 
-// Rutas de la API
+// --- RUTAS DE LA API DE ESTRUCTURAS ---
 app.MapGet("/api/arreglo", () => {
     var canciones = new MiArregloDinamico<string>(2);
     canciones.Agregar("Bohemian Rhapsody");
@@ -56,19 +58,62 @@ app.MapGet("/api/bd", () => {
     return Results.Ok(new { Mensaje = "Base de datos en Neon conectada correctamente" });
 });
 
-// ESTA LÍNEA ES CLAVE: Si alguien entra a una ruta que no es API, le muestra el index.html
-app.MapFallbackToFile("index.html");
-
-// Ruta para obtener el catálogo de canciones de prueba
-app.MapGet("/api/canciones", () => {
-    var catalogo = new[] {
-        new { Id = 1, Titulo = "Gavilán o Paloma", Artista = "José José", Portada = "https://picsum.photos/id/10/300/300", UrlAudio = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-        new { Id = 2, Titulo = "Sunflower", Artista = "Post Malone, Swae Lee", Portada = "https://picsum.photos/id/20/300/300", UrlAudio = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-        new { Id = 3, Titulo = "As It Was", Artista = "Harry Styles", Portada = "https://picsum.photos/id/30/300/300", UrlAudio = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-        new { Id = 4, Titulo = "Blinding Lights", Artista = "The Weeknd", Portada = "https://picsum.photos/id/40/300/300", UrlAudio = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
-        new { Id = 5, Titulo = "Tus Me Gusta", Artista = "Tus favoritos", Portada = "https://picsum.photos/id/50/300/300", UrlAudio = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" }
+// --- NUEVA RUTA: CATÁLOGO CON AUDIOS REALES DESDE ITUNES ---
+app.MapGet("/api/canciones", async () => {
+    var nombresCanciones = new[] {
+        ("Gavilán o Paloma", "José José"),
+        ("Sunflower", "Post Malone"),
+        ("As It Was", "Harry Styles"),
+        ("Blinding Lights", "The Weeknd"),
+        ("Tus Me Gusta", "Tus favoritos")
     };
+
+    var catalogo = new List<object>();
+    using var httpClient = new HttpClient();
+
+    foreach (var (titulo, artista) in nombresCanciones) {
+        try {
+            // Buscamos la canción en iTunes
+            var query = Uri.EscapeDataString($"{titulo} {artista}");
+            var response = await httpClient.GetFromJsonAsync<JsonElement>($"https://itunes.apple.com/search?term={query}&media=music&limit=1");
+
+            var previewUrl = "";
+            var artworkUrl = "";
+
+            // Si iTunes encontró resultados, extraemos el audio y la portada
+            if (response.GetProperty("resultCount").GetInt32() > 0) {
+                var result = response.GetProperty("results")[0];
+                previewUrl = result.GetProperty("previewUrl").GetString() ?? "";
+                artworkUrl = result.GetProperty("artworkUrl100").GetString()?.Replace("100x100bb", "300x300bb") ?? "";
+            }
+
+            // Si no hay audio válido, usamos uno de respaldo para que no falle el reproductor
+            if (string.IsNullOrEmpty(previewUrl)) {
+                previewUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+            }
+
+            catalogo.Add(new {
+                titulo = titulo,
+                artista = artista,
+                portada = string.IsNullOrEmpty(artworkUrl) ? $"https://picsum.photos/id/{catalogo.Count + 10}/300/300" : artworkUrl,
+                urlAudio = previewUrl
+            });
+        }
+        catch {
+            // En caso de error de red, evitamos que la app explote
+            catalogo.Add(new {
+                titulo = titulo,
+                artista = artista,
+                portada = $"https://picsum.photos/id/{catalogo.Count + 10}/300/300",
+                urlAudio = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+            });
+        }
+    }
+    
     return Results.Ok(catalogo);
 });
 
-app.Run(); 
+// ESTA LÍNEA VA AL FINAL: Si alguien entra a una ruta que no es API, le muestra el index.html
+app.MapFallbackToFile("index.html");
+
+app.Run();

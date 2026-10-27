@@ -245,88 +245,194 @@
     <audio id="audio-player"></audio>
 
     <script>
-        const audio = document.getElementById('audio-player');
-        const btnPlay = document.getElementById('btn-play');
-        const progressFill = document.getElementById('progress-fill');
-        let isPlaying = false;
+    // --- Referencias a los elementos del DOM ---
+    const audio = document.getElementById('audio-player');
+    const btnPlay = document.getElementById('btn-play');
+    const progressFill = document.getElementById('progress-fill');
+    const progressBar = document.getElementById('progress-bar');
+    const currentTimeEl = document.getElementById('current-time');
+    const totalTimeEl = document.getElementById('total-time');
+    const volumeBar = document.querySelector('.volume-controls .progress-bar');
+    const volumeFill = document.querySelector('.volume-controls .progress-fill');
+    
+    // Botones de control
+    const btnShuffle = document.querySelector('.fa-shuffle').parentElement;
+    const btnPrev = document.querySelector('.fa-backward-step').parentElement;
+    const btnNext = document.querySelector('.fa-forward-step').parentElement;
+    const btnRepeat = document.querySelector('.fa-repeat').parentElement;
 
-        // Cargar canciones desde C# al iniciar
-        window.onload = () => {
-            cargarCanciones();
-        };
+    // --- Estado del Reproductor ---
+    let canciones = [];          // Array con las canciones de la API
+    let cancionActualIndex = -1; // Índice de la canción que se está reproduciendo
+    let isPlaying = false;
+    let isShuffle = false;
+    let isRepeat = false;
 
-        async function cargarCanciones() {
-            const grid = document.getElementById('catalogo');
-            grid.innerHTML = '<p style="color: var(--brand-color);">Cargando datos desde C# en Render...</p>';
-            
-            try {
-                // Hacemos la petición a nuestra API
-                const response = await fetch('/api/canciones');
-                const canciones = await response.json();
+    // --- Cargar Canciones desde C# ---
+    window.onload = () => {
+        cargarCanciones();
+    };
 
-                grid.innerHTML = ''; // Limpiar mensaje de carga
+    async function cargarCanciones() {
+        const grid = document.getElementById('catalogo');
+        grid.innerHTML = '<p style="color: var(--brand-color);">Cargando datos desde C# en Render...</p>';
+        
+        try {
+            const response = await fetch('/api/canciones');
+            canciones = await response.json();
 
-                canciones.forEach(c => {
-                    // Creamos la tarjeta HTML para cada canción
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.innerHTML = `
-                        <img src="${c.portada}">
-                        <h3>${c.titulo}</h3>
-                        <p>${c.artista}</p>
-                        <div class="play-fab" onclick="reproducir('${c.titulo}', '${c.artista}', '${c.portada}', '${c.urlAudio}')">
-                            <i class="fa-solid fa-play"></i>
-                        </div>
-                    `;
-                    grid.appendChild(card);
-                });
-            } catch (error) {
-                grid.innerHTML = '<p style="color: red;">Error conectando con la API de C#</p>';
-            }
+            grid.innerHTML = ''; // Limpiar mensaje de carga
+
+            canciones.forEach((c, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <img src="${c.portada}">
+                    <h3>${c.titulo}</h3>
+                    <p>${c.artista}</p>
+                    <div class="play-fab" onclick="reproducir(${index})">
+                        <i class="fa-solid fa-play"></i>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        } catch (error) {
+            grid.innerHTML = '<p style="color: red;">Error conectando con la API de C#</p>';
         }
+    }
 
-        function reproducir(titulo, artista, portada, url) {
-            document.getElementById('player-title').innerText = titulo;
-            document.getElementById('player-artist').innerText = artista;
-            document.getElementById('player-cover').src = portada;
-            document.getElementById('side-title').innerText = titulo;
-            document.getElementById('side-artist').innerText = artista;
+    // --- Reproducir una canción por índice ---
+    function reproducir(index) {
+        if (index < 0 || index >= canciones.length) return;
 
-            audio.src = url;
+        const c = canciones[index];
+        cancionActualIndex = index;
+
+        // Actualizar interfaz
+        document.getElementById('player-title').innerText = c.titulo;
+        document.getElementById('player-artist').innerText = c.artista;
+        document.getElementById('player-cover').src = c.portada;
+        document.getElementById('side-title').innerText = c.titulo;
+        document.getElementById('side-artist').innerText = c.artista;
+
+        // Cargar y reproducir audio
+        audio.src = c.urlAudio;
+        audio.play();
+        isPlaying = true;
+        btnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
+    }
+
+    // --- Play / Pausa ---
+    function togglePlay() {
+        if (!audio.src) return; // Si no hay canción seleccionada
+
+        if (isPlaying) {
+            audio.pause();
+            btnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
+        } else {
             audio.play();
-            isPlaying = true;
             btnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
         }
+        isPlaying = !isPlaying;
+    }
 
-        function togglePlay() {
-            if (!audio.src) return; // Si no hay canción seleccionada, no hace nada
-
-            if (isPlaying) {
-                audio.pause();
-                btnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
-            } else {
-                audio.play();
-                btnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
-            }
-            isPlaying = !isPlaying;
+    // --- Siguiente / Anterior ---
+    function siguienteCancion() {
+        if (canciones.length === 0) return;
+        
+        let nextIndex;
+        if (isShuffle) {
+            // Modo aleatorio: elegir un índice al azar
+            do {
+                nextIndex = Math.floor(Math.random() * canciones.length);
+            } while (nextIndex === cancionActualIndex && canciones.length > 1);
+        } else {
+            // Modo normal: siguiente en la lista
+            nextIndex = (cancionActualIndex + 1) % canciones.length;
         }
+        reproducir(nextIndex);
+    }
 
-        // Actualizar la barra de progreso
-        audio.addEventListener('timeupdate', () => {
-            if (audio.duration) {
-                const percent = (audio.currentTime / audio.duration) * 100;
-                progressFill.style.width = `${percent}%`;
+    function anteriorCancion() {
+        if (canciones.length === 0) return;
+        
+        let prevIndex;
+        if (isShuffle) {
+            do {
+                prevIndex = Math.floor(Math.random() * canciones.length);
+            } while (prevIndex === cancionActualIndex && canciones.length > 1);
+        } else {
+            prevIndex = (cancionActualIndex - 1 + canciones.length) % canciones.length;
+        }
+        reproducir(prevIndex);
+    }
 
-                // Formatear minutos y segundos
-                let currentMin = Math.floor(audio.currentTime / 60);
-                let currentSec = Math.floor(audio.currentTime % 60);
-                let totalMin = Math.floor(audio.duration / 60);
-                let totalSec = Math.floor(audio.duration % 60);
+    // --- Modo Aleatorio y Repetir ---
+    function toggleShuffle() {
+        isShuffle = !isShuffle;
+        // Cambiamos el color del ícono para indicar que está activo
+        btnShuffle.style.color = isShuffle ? 'var(--brand-color)' : 'var(--text-subdued)';
+    }
 
-                document.getElementById('current-time').innerText = `${currentMin}:${currentSec < 10 ? '0'+currentSec : currentSec}`;
-                document.getElementById('total-time').innerText = `${totalMin}:${totalSec < 10 ? '0'+totalSec : totalSec}`;
-            }
-        });
-    </script>
+    function toggleRepeat() {
+        isRepeat = !isRepeat;
+        btnRepeat.style.color = isRepeat ? 'var(--brand-color)' : 'var(--text-subdued)';
+    }
+
+    // --- Barra de Progreso ---
+    audio.addEventListener('timeupdate', () => {
+        if (audio.duration) {
+            const percent = (audio.currentTime / audio.duration) * 100;
+            progressFill.style.width = `${percent}%`;
+
+            // Actualizar los tiempos en texto
+            currentTimeEl.innerText = formatearTiempo(audio.currentTime);
+            totalTimeEl.innerText = formatearTiempo(audio.duration);
+        }
+    });
+
+    // Permitir hacer clic en la barra para saltar a un punto
+    progressBar.addEventListener('click', (e) => {
+        if (!audio.duration) return;
+        const rect = progressBar.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const percent = clickX / rect.width;
+        audio.currentTime = percent * audio.duration;
+    });
+
+    // --- Control de Volumen ---
+    volumeBar.addEventListener('click', (e) => {
+        const rect = volumeBar.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const percent = clickX / rect.width;
+        audio.volume = percent;
+        volumeFill.style.width = `${percent * 100}%`;
+    });
+
+    // --- Evento al terminar una canción ---
+    audio.addEventListener('ended', () => {
+        if (isRepeat) {
+            // Si "repetir" está activo, vuelve a empezar la misma canción
+            audio.currentTime = 0;
+            audio.play();
+        } else {
+            // Si no, pasa a la siguiente
+            siguienteCancion();
+        }
+    });
+
+    // --- Función auxiliar para formatear el tiempo (mm:ss) ---
+    function formatearTiempo(segundos) {
+        const min = Math.floor(segundos / 60);
+        const sec = Math.floor(segundos % 60);
+        return `${min}:${sec < 10 ? '0' + sec : sec}`;
+    }
+
+    // --- Asignar eventos a los botones ---
+    btnShuffle.addEventListener('click', toggleShuffle);
+    btnPrev.addEventListener('click', anteriorCancion);
+    btnNext.addEventListener('click', siguienteCancion);
+    btnRepeat.addEventListener('click', toggleRepeat);
+</script>
 </body>
 </html>
