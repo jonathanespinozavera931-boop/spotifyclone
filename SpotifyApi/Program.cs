@@ -59,4 +59,16 @@ app.MapGet("/api/bd", () => {
 // ESTA LÍNEA ES CLAVE: Si alguien entra a una ruta que no es API, le muestra el index.html
 app.MapFallbackToFile("index.html");
 
+// Ruta para obtener el catálogo de canciones de prueba
+app.MapGet("/api/canciones", () => {
+    var catalogo = new[] {
+        new { Id = 1, Titulo = "Gavilán o Paloma", Artista = "José José", Portada = "https://picsum.photos/id/10/300/300", UrlAudio = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+        new { Id = 2, Titulo = "Sunflower", Artista = "Post Malone, Swae Lee", Portada = "https://picsum.photos/id/20/300/300", UrlAudio = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+        new { Id = 3, Titulo = "As It Was", Artista = "Harry Styles", Portada = "https://picsum.photos/id/30/300/300", UrlAudio = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+        new { Id = 4, Titulo = "Blinding Lights", Artista = "The Weeknd", Portada = "https://picsum.photos/id/40/300/300", UrlAudio = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+        new { Id = 5, Titulo = "Tus Me Gusta", Artista = "Tus favoritos", Portada = "https://picsum.photos/id/50/300/300", UrlAudio = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" }
+    };
+    return Results.Ok(catalogo);
+});
+
 app.Run(); 
