@@ -16,24 +16,71 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-base); color: var(--text-base); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        body { 
+            background-color: var(--bg-base); 
+            color: var(--text-base); 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
 
-        .app-layout { display: grid; grid-template-columns: 260px 1fr 340px; gap: 8px; padding: 8px; height: calc(100vh - 90px); }
-        .sidebar-left { background-color: var(--bg-panel); border-radius: 8px; padding: 20px 12px; display: flex; flex-direction: column; gap: 24px; }
+        /* --- ESTRUCTURA PRINCIPAL --- */
+        .app-layout { 
+            display: flex; 
+            flex: 1; 
+            overflow: hidden; 
+            padding: 8px; 
+            gap: 8px; 
+            padding-bottom: 0;
+        }
+
+        /* Sidebar Izquierdo */
+        .sidebar-left { 
+            width: 260px; 
+            background-color: var(--bg-panel); 
+            border-radius: 8px; 
+            padding: 20px 12px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 24px; 
+            flex-shrink: 0;
+        }
         .logo { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: 800; padding: 0 10px; cursor: pointer; }
         .logo img { width: 36px; height: 36px; border-radius: 8px; }
         .nav-links { display: flex; flex-direction: column; gap: 20px; }
         .nav-item { display: flex; align-items: center; gap: 16px; color: var(--text-subdued); font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: 0.2s; padding: 0 10px; }
         .nav-item:hover, .nav-item.active { color: var(--text-base); }
         .divider { height: 1px; background-color: #282828; margin: 10px 0; }
-        
-        .main-view { background-color: var(--bg-panel); border-radius: 8px; overflow-y: auto; position: relative; padding-bottom: 20px; }
+
+        /* Vista Central */
+        .main-view { 
+            flex: 1; 
+            background-color: var(--bg-panel); 
+            border-radius: 8px; 
+            overflow-y: auto; 
+            position: relative; 
+            padding-bottom: 30px;
+        }
         .top-bar { position: sticky; top: 0; background: rgba(18,18,18,0.9); backdrop-filter: blur(10px); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
         .search-box { background-color: rgba(255,255,255,0.1); border-radius: 20px; padding: 10px 20px; display: flex; align-items: center; gap: 10px; width: 400px; color: var(--text-subdued); }
         .search-box input { background: none; border: none; color: white; outline: none; width: 100%; font-size: 0.9rem; }
-        .user-area { display: flex; align-items: center; gap: 20px; }
-        .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--brand-gradient); cursor: pointer; }
-        
+
+        /* Sidebar Derecho */
+        .sidebar-right { 
+            width: 300px; 
+            background-color: var(--bg-panel); 
+            border-radius: 8px; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px; 
+            overflow-y: auto; 
+            flex-shrink: 0;
+        }
+
+        /* --- COMPONENTES VISUALES --- */
         .hero-banner { background: url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1000&auto=format&fit=crop') center/cover; margin: 20px 32px; border-radius: 12px; padding: 40px; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .hero-banner::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(18,18,18,0.9) 0%, rgba(18,18,18,0.4) 100%); z-index: 1; }
         .hero-content { position: relative; z-index: 2; max-width: 500px; }
@@ -44,17 +91,13 @@
         .hero-buttons { display: flex; gap: 15px; }
         .btn-primary { background: var(--brand-gradient); color: white; border: none; padding: 12px 24px; border-radius: 30px; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
         .btn-secondary { background: transparent; color: white; border: 1px solid #555; padding: 12px 24px; border-radius: 30px; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
-        .btn-primary:hover { transform: scale(1.05); } .btn-secondary:hover { border-color: white; }
-        
+
         .section-container { padding: 0 32px; margin-top: 30px; }
         .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
         .section-title { font-size: 1.4rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
         .section-title i { color: var(--brand-purple); }
-        
-        /* Botón de Play All en Playlists */
         .btn-play-all { background: var(--brand-gradient); color: white; border: none; padding: 10px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; display: none; align-items: center; gap: 8px; transition: 0.2s; }
-        .btn-play-all:hover { transform: scale(1.05); }
-        
+
         .cards-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
         .card { background-color: var(--bg-card); padding: 16px; border-radius: 8px; cursor: pointer; transition: 0.3s; position: relative; }
         .card:hover { background-color: var(--bg-card-hover); }
@@ -65,7 +108,7 @@
         .card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .card p { font-size: 0.8rem; color: var(--text-subdued); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .play-fab { position: absolute; bottom: 65px; right: 16px; width: 44px; height: 44px; border-radius: 50%; background: var(--brand-gradient); display: flex; justify-content: center; align-items: center; color: white; opacity: 0; transform: translateY(10px); transition: 0.3s; box-shadow: 0 8px 15px rgba(0,0,0,0.4); z-index: 2; }
-        
+
         .playlists-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
         .playlist-card { background-color: var(--bg-card); border-radius: 8px; overflow: hidden; cursor: pointer; transition: 0.3s; }
         .playlist-card:hover { background-color: var(--bg-card-hover); transform: scale(1.02); }
@@ -73,31 +116,34 @@
         .playlist-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg-card) 0%, transparent 100%); }
         .playlist-info { padding: 16px; position: relative; z-index: 2; margin-top: -20px; }
         .playlist-badge { display: inline-flex; align-items: center; gap: 5px; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 15px; font-size: 0.7rem; border: 1px solid #444; margin-top: 10px; }
-        
-        .sidebar-right { background-color: var(--bg-panel); border-radius: 8px; padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
+
+        /* Reproductor Side (DJ) */
         .widget-header { display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 0.9rem; }
-        .widget-header span { color: var(--brand-purple); cursor: pointer; font-size: 0.8rem; }
         .dj-widget { background-color: var(--bg-card); border-radius: 10px; padding: 16px; }
         .dj-widget img { width: 100%; border-radius: 8px; margin-bottom: 15px; aspect-ratio: 16/9; object-fit: cover; }
         .dj-widget h3 { font-size: 1.1rem; margin-bottom: 5px; }
         .dj-widget p { font-size: 0.85rem; color: var(--text-subdued); margin-bottom: 15px; }
         .dj-controls { display: flex; justify-content: space-between; align-items: center; color: var(--text-subdued); margin-bottom: 15px; font-size: 1.1rem; }
         .dj-controls .main-play { width: 40px; height: 40px; border-radius: 50%; background: white; color: black; display: flex; justify-content: center; align-items: center; cursor: pointer; }
-        .dj-actions { display: flex; justify-content: space-between; border-top: 1px solid #333; padding-top: 15px; color: var(--text-subdued); }
-        
-        .list-item { display: flex; align-items: center; gap: 15px; padding: 10px 0; cursor: pointer; }
-        .list-item:hover { background-color: rgba(255,255,255,0.05); border-radius: 5px; }
-        .list-icon { width: 48px; height: 48px; border-radius: 4px; background: var(--brand-gradient); display: flex; justify-content: center; align-items: center; font-size: 1.2rem; }
-        .list-info h4 { font-size: 0.9rem; margin-bottom: 4px; } .list-info p { font-size: 0.75rem; color: var(--text-subdued); }
-        .promo-box { background: linear-gradient(135deg, #4a00e0, #8e2de2); border-radius: 10px; padding: 20px; margin-top: auto; }
-        .btn-promo { background: white; color: black; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
-        
-        .player-bar { height: 90px; background-color: var(--bg-base); display: flex; justify-content: space-between; align-items: center; padding: 0 16px; border-top: 1px solid #282828; }
+
+        /* --- REPRODUCTOR INFERIOR --- */
+        .player-bar { 
+            height: 90px; 
+            background-color: var(--bg-base); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 0 16px; 
+            border-top: 1px solid #282828; 
+            flex-shrink: 0; 
+        }
         .song-info { display: flex; align-items: center; gap: 15px; width: 30%; }
-        .song-info img { width: 56px; height: 56px; border-radius: 6px; }
-        .song-details h4 { font-size: 0.9rem; margin-bottom: 4px; } .song-details span { font-size: 0.75rem; color: var(--text-subdued); }
+        .song-info img { width: 56px; height: 56px; border-radius: 6px; object-fit: cover; }
+        .song-details h4 { font-size: 0.9rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;}
+        .song-details span { font-size: 0.75rem; color: var(--text-subdued); }
         .heart-icon { margin-left: 10px; color: var(--text-subdued); cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
         .heart-icon.active { color: var(--brand-purple); }
+
         .player-controls { display: flex; flex-direction: column; align-items: center; width: 40%; gap: 8px; }
         .controls-buttons { display: flex; align-items: center; gap: 24px; }
         .btn-control { background: none; border: none; color: var(--text-subdued); cursor: pointer; font-size: 1rem; transition: 0.2s; }
@@ -108,7 +154,7 @@
         
         .progress-container { display: flex; align-items: center; gap: 10px; width: 100%; font-size: 0.7rem; color: var(--text-subdued); }
         
-        /* Sliders sin errores */
+        /* Sliders */
         input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; background: #4d4d4d; border-radius: 2px; cursor: pointer; outline: none; }
         input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%; background: white; opacity: 0; transition: 0.2s; }
         input[type="range"]:hover::-webkit-slider-thumb { opacity: 1; }
@@ -116,20 +162,48 @@
         
         .volume-controls { width: 30%; display: flex; justify-content: flex-end; align-items: center; gap: 15px; color: var(--text-subdued); }
         .volume-slider { width: 100px; }
-        
-        /* Scrollbar sin errores */
+
+        /* Scrollbars */
         * { scrollbar-width: thin; scrollbar-color: #333 var(--bg-base); }
         ::-webkit-scrollbar { width: 10px; } 
         ::-webkit-scrollbar-thumb { background-color: #333; border-radius: 5px; }
 
-        @media (max-width: 1024px) { .app-layout { grid-template-columns: 200px 1fr; } .sidebar-right { display: none; } .cards-grid { grid-template-columns: repeat(4, 1fr); } .playlists-grid { grid-template-columns: repeat(2, 1fr); } .hero-content h1 { font-size: 2.5rem; } }
-        @media (max-width: 768px) { .app-layout { grid-template-columns: 1fr; padding: 0; gap: 0; height: calc(100vh - 130px); } .sidebar-left { display: none; } .main-view { border-radius: 0; } .top-bar { padding: 10px 16px; } .search-box { width: 100%; margin-right: 10px; } .user-area { display: none; } .hero-banner { margin: 10px; padding: 20px; } .hero-content h1 { font-size: 2rem; } .hero-buttons { flex-direction: column; gap: 10px; } .section-container { padding: 0 16px; } .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } .playlists-grid { grid-template-columns: 1fr; } .player-bar { flex-direction: column; height: auto; padding: 10px; gap: 10px; } .song-info { width: 100%; justify-content: center; } .player-controls { width: 100%; gap: 5px; } .volume-controls { display: none; } .song-info img { width: 40px; height: 40px; } }
-        @media (max-width: 480px) { .cards-grid { grid-template-columns: repeat(1, 1fr); } .hero-content h1 { font-size: 1.8rem; } }
+        /* --- RESPONSIVE --- */
+        @media (max-width: 1200px) {
+            .cards-grid { grid-template-columns: repeat(4, 1fr); }
+            .playlists-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 1024px) {
+            .app-layout { grid-template-columns: 200px 1fr; }
+            .sidebar-right { display: none; }
+            .hero-content h1 { font-size: 2.5rem; }
+        }
+
+        @media (max-width: 768px) {
+            .app-layout { padding: 0; gap: 0; }
+            .sidebar-left { display: none; } 
+            .main-view { border-radius: 0; }
+            .top-bar { padding: 10px 16px; }
+            .search-box { width: 100%; margin-right: 10px; }
+            .hero-banner { margin: 10px; padding: 20px; }
+            .hero-content h1 { font-size: 2rem; }
+            .hero-buttons { flex-direction: column; gap: 10px; }
+            .section-container { padding: 0 16px; }
+            .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .playlists-grid { grid-template-columns: 1fr; }
+            
+            .player-bar { flex-direction: column; height: auto; padding: 10px; gap: 10px; }
+            .song-info { width: 100%; justify-content: center; }
+            .player-controls { width: 100%; gap: 5px; }
+            .volume-controls { display: none; }
+        }
     </style>
 </head>
 <body>
 
     <div class="app-layout">
+        <!-- SIDEBAR IZQUIERDO -->
         <div class="sidebar-left">
             <div class="logo" onclick="cargarCanciones()">
                 <img src="logo.png" alt="Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3659/3659899.png'">
@@ -142,15 +216,21 @@
             </div>
             <div class="divider"></div>
             <div class="nav-links">
-                <a class="nav-item" onclick="mostrarAlerta('Crear playlist en desarrollo...')"><i class="fa-solid fa-plus" style="background: #333; padding: 5px; border-radius: 2px; font-size: 0.8rem;"></i> Crear playlist</a>
-                            <a class="nav-item" onclick="cargarPlaylist('favoritos')"><i class="fa-regular fa-heart" style="background: var(--brand-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.2rem;"></i> Me gusta</a>
+                <a class="nav-item" onclick="mostrarAlerta('Crear playlist en desarrollo...')">
+                    <i class="fa-solid fa-plus" style="background: #333; padding: 5px; border-radius: 2px; font-size: 0.8rem;"></i> Crear playlist
+                </a>
+                <a class="nav-item" onclick="cargarPlaylist('favoritos')">
+                    <i class="fa-regular fa-heart" style="background: var(--brand-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.2rem;"></i> Me gusta
+                </a>
+            </div>
         </div>
 
+        <!-- VISTA PRINCIPAL -->
         <div class="main-view">
             <div class="top-bar">
                 <div class="search-box">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="input-buscar" placeholder="Busca cualquier canción (mínimo 2 letras)..." oninput="debounceBuscar()">
+                    <input type="text" id="input-buscar" placeholder="Busca cualquier canción..." oninput="debounceBuscar()">
                 </div>
             </div>
 
@@ -171,7 +251,7 @@
                     <div class="section-title" id="titulo-seccion"><i class="fa-solid fa-bolt"></i> Nuevo lanzamiento</div>
                     <div style="display:flex; gap:10px;">
                         <button class="btn-play-all" id="btn-play-all" onclick="reproducirPlaylistCompleta()"><i class="fa-solid fa-play"></i> Reproducir Todo</button>
-                        <div class="see-all" onclick="cargarCanciones()">Ver todo <i class="fa-solid fa-arrow-right"></i></div>
+                        <div class="see-all" onclick="cargarCanciones()" style="cursor:pointer;">Ver todo <i class="fa-solid fa-arrow-right"></i></div>
                     </div>
                 </div>
                 <div class="cards-grid" id="catalogo"></div>
@@ -202,6 +282,7 @@
             </div>
         </div>
 
+        <!-- SIDEBAR DERECHO -->
         <div class="sidebar-right">
             <div class="widget-header">DJ • Vibra</div>
             <div class="dj-widget">
@@ -220,6 +301,7 @@
         </div>
     </div>
 
+    <!-- REPRODUCTOR INFERIOR -->
     <div class="player-bar">
         <div class="song-info">
             <img id="player-cover" src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=100&auto=format&fit=crop">
@@ -276,7 +358,7 @@
                 listaReproduccionActual = [...cancionesOriginales];
                 renderizarCanciones(cancionesOriginales.slice(0, 6)); 
             } catch (error) {
-                grid.innerHTML = '<p style="color: red;">Error de red</p>';
+                grid.innerHTML = '<p style="color: red;">Error de red al conectar con la API</p>';
             }
         }
 
@@ -303,7 +385,6 @@
             });
         }
 
-        // BUSCADOR EN VIVO (Ahora busca cualquier canción)
         function debounceBuscar() {
             clearTimeout(timeoutBuscar);
             timeoutBuscar = setTimeout(async () => {
@@ -313,7 +394,7 @@
                     cargarCanciones(); 
                     return;
                 }
-                if (query.length < 2) return; // Mínimo 2 letras
+                if (query.length < 2) return; 
 
                 const grid = document.getElementById('catalogo');
                 grid.innerHTML = `<p style="color: var(--brand-purple);">Buscando "${query}" en todo el mundo...</p>`;
@@ -335,7 +416,6 @@
             }, 500);
         }
 
-        // CARGAR PLAYLIST (Filtra estrictamente por género)
         function cargarPlaylist(genero) {
             document.getElementById('input-buscar').value = '';
             let filtradas = [];
@@ -345,7 +425,6 @@
                 filtradas = cancionesOriginales.slice(0, 10); 
                 titulo = '<i class="fa-solid fa-heart"></i> Tus Favoritas';
             } else {
-                // Filtro estricto por género
                 filtradas = cancionesOriginales.filter(c => c.genero === genero);
                 if (genero === 'indie') titulo = '<i class="fa-solid fa-compact-disc"></i> Indie Vibes';
                 if (genero === 'latino') titulo = '<i class="fa-solid fa-fire"></i> Pop Latino';
@@ -358,12 +437,11 @@
             document.getElementById('titulo-seccion').innerHTML = titulo;
             document.getElementById('seccion-playlists').style.display = 'none'; 
             document.getElementById('hero-banner').style.display = 'none'; 
-            document.getElementById('btn-play-all').style.display = 'flex'; // Mostrar botón de Play All
+            document.getElementById('btn-play-all').style.display = 'flex'; 
             
             renderizarCanciones(filtradas);
         }
 
-        // Reproduce la playlist entera desde el principio
         function reproducirPlaylistCompleta() {
             if (listaReproduccionActual.length > 0) {
                 reproducir(listaReproduccionActual[0].id);
