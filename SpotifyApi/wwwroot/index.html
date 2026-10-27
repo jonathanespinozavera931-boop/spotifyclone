@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <link rel="icon" type="image/png" href="logo.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MusicStruct</title>
@@ -126,6 +127,63 @@
 
         /* Scrollbars */
         ::-webkit-scrollbar { width: 10px; } ::-webkit-scrollbar-thumb { background-color: #333; border-radius: 5px; }
+            /* --- DISEÑO RESPONSIVE --- */
+
+        /* Tablets y pantallas medianas */
+        @media (max-width: 1024px) {
+            .app-layout { 
+                grid-template-columns: 200px 1fr; /* Ocultamos la barra derecha */
+            }
+            .sidebar-right { display: none; }
+            .cards-grid { grid-template-columns: repeat(4, 1fr); }
+            .playlists-grid { grid-template-columns: repeat(2, 1fr); }
+            .hero-content h1 { font-size: 2.5rem; }
+        }
+
+        /* Celulares */
+        @media (max-width: 768px) {
+            .app-layout { 
+                grid-template-columns: 1fr; /* Una sola columna */
+                padding: 0; 
+                gap: 0; 
+                height: calc(100vh - 130px); /* Más espacio para el reproductor móvil */
+            }
+            .sidebar-left { display: none; } /* Ocultamos menú izquierdo */
+            .main-view { border-radius: 0; }
+            
+            /* Ajustar barra superior */
+            .top-bar { padding: 10px 16px; }
+            .search-box { width: 100%; margin-right: 10px; }
+            .user-area { display: none; }
+            
+            /* Ajustar banner */
+            .hero-banner { margin: 10px; padding: 20px; }
+            .hero-content h1 { font-size: 2rem; }
+            .hero-buttons { flex-direction: column; gap: 10px; }
+            
+            /* Ajustar secciones y tarjetas */
+            .section-container { padding: 0 16px; }
+            .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .playlists-grid { grid-template-columns: 1fr; }
+            
+            /* Ajustar reproductor inferior para que no ocupe toda la pantalla */
+            .player-bar { 
+                flex-direction: column; 
+                height: auto; 
+                padding: 10px; 
+                gap: 10px; 
+            }
+            .song-info { width: 100%; justify-content: center; }
+            .player-controls { width: 100%; gap: 5px; }
+            .volume-controls { display: none; } /* Ocultamos volumen en móvil */
+            .song-info img { width: 40px; height: 40px; }
+        }
+
+        /* Celulares pequeños */
+        @media (max-width: 480px) {
+            .cards-grid { grid-template-columns: repeat(1, 1fr); }
+            .hero-content h1 { font-size: 1.8rem; }
+        }
     </style>
 </head>
 <body>
