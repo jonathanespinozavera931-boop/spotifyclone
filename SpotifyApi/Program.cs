@@ -15,14 +15,13 @@ app.UseCors();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-// --- RUTAS DE TUS ESTRUCTURAS DE DATOS (Igual que antes) ---
-app.MapGet("/api/arreglo", () => { return Results.Ok(new { Mensaje = "Arreglo ok" }); });
-app.MapGet("/api/lista-simple", () => { return Results.Ok(new { Mensaje = "Lista ok" }); });
-app.MapGet("/api/bst", () => { return Results.Ok(new { Mensaje = "BST ok" }); });
-app.MapGet("/api/grafo", () => { return Results.Ok(new { Mensaje = "Grafo ok" }); });
-app.MapGet("/api/bd", () => { return Results.Ok(new { Mensaje = "BD ok" }); });
+// Estructuras (igual que antes)
+app.MapGet("/api/arreglo", () => Results.Ok(new { Mensaje = "Arreglo ok" }));
+app.MapGet("/api/lista-simple", () => Results.Ok(new { Mensaje = "Lista ok" }));
+app.MapGet("/api/bst", () => Results.Ok(new { Mensaje = "BST ok" }));
+app.MapGet("/api/grafo", () => Results.Ok(new { Mensaje = "Grafo ok" }));
+app.MapGet("/api/bd", () => Results.Ok(new { Mensaje = "BD ok" }));
 
-// --- FUNCIÓN AUXILIAR PARA BUSCAR EN ITUNES ---
 async Task<object> BuscarEnITunes(string titulo, string artista, int id, string genero, bool esNuevo = false) {
     using var httpClient = new HttpClient();
     try {
@@ -44,7 +43,6 @@ async Task<object> BuscarEnITunes(string titulo, string artista, int id, string 
     }
 }
 
-// --- RUTA 1: CATÁLOGO INICIAL (50 CANCIONES CON GÉNERO) ---
 app.MapGet("/api/canciones", async () => {
     var listaBase = new[] {
         ("Shape of You", "Ed Sheeran", "pop"), ("Blinding Lights", "The Weeknd", "pop"), ("Levitating", "Dua Lipa", "pop"),
@@ -68,12 +66,11 @@ app.MapGet("/api/canciones", async () => {
 
     var catalogo = new List<object>();
     var tareas = new List<Task>();
-    using var semaforo = new SemaphoreSlim(10); // Evitar bloqueo de iTunes
+    using var semaforo = new SemaphoreSlim(10);
 
     for (int i = 0; i < listaBase.Length; i++) {
         int index = i;
         var (titulo, artista, genero) = listaBase[i];
-
         tareas.Add(Task.Run(async () => {
             await semaforo.WaitAsync();
             try {
@@ -87,14 +84,13 @@ app.MapGet("/api/canciones", async () => {
     return Results.Ok(catalogo.OrderBy(c => ((dynamic)c).id).ToList());
 });
 
-// --- RUTA 2: BUSCADOR EN VIVO (Cualquier canción del mundo) ---
+// BUSCADOR: Acepta cualquier término de búsqueda
 app.MapGet("/api/buscar", async (string q) => {
-    if (string.IsNullOrWhiteSpace(q)) return Results.Ok(new List<object>());
+    if (string.IsNullOrWhiteSpace(q) || q.Length < 2) return Results.Ok(new List<object>());
     
     using var httpClient = new HttpClient();
     var query = Uri.EscapeDataString(q);
-    // Buscamos hasta 20 resultados para no saturar
-    var response = await httpClient.GetFromJsonAsync<JsonElement>($"https://itunes.apple.com/search?term={query}&media=music&limit=20");
+    var response = await httpClient.GetFromJsonAsync<JsonElement>($"https://itunes.apple.com/search?term={query}&media=music&limit=30");
 
     var resultados = new List<object>();
     int count = response.GetProperty("resultCount").GetInt32();
@@ -106,15 +102,18 @@ app.MapGet("/api/buscar", async (string q) => {
         string artistName = item.GetProperty("artistName").GetString() ?? "";
         string previewUrl = item.TryGetProperty("previewUrl", out var p) ? p.GetString() ?? "" : "";
         string artwork = item.TryGetProperty("artworkUrl100", out var a) ? a.GetString()?.Replace("100x100bb", "300x300bb") ?? "" : "";
+        
+        // Opcional: obtener el género real de iTunes, pero para búsquedas no importa
+        string genero = "busqueda"; 
 
         if (!string.IsNullOrEmpty(previewUrl)) {
             resultados.Add(new {
-                id = 1000 + i, // IDs diferentes para no chocar con el catálogo
+                id = 1000 + i,
                 titulo = trackName,
                 artista = artistName,
                 portada = artwork,
                 urlAudio = previewUrl,
-                genero = "busqueda",
+                genero = genero,
                 esNuevo = false
             });
         }
